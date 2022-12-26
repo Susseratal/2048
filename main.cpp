@@ -12,6 +12,18 @@ typedef int Grid[4][4];
 
 enum direction { d_left, d_down, d_up, d_right };
 
+void addNumber(Grid& grid)
+{
+    int randX, randY;
+    do
+    {
+        randX = rand() % 4;
+        randY = rand() % 4;
+    } while (grid[randY][randX] != 0);
+
+    grid[randY][randX] = 2;
+}
+
 void drawTable(WINDOW* win)
 {
     for (int y = 5; y < 22; y++)
@@ -48,8 +60,9 @@ void drawGrid(Grid& grid, WINDOW* win)
     wrefresh(win);
 }
 
-void move(Grid& grid, direction d, WINDOW* win)
+bool move(Grid& grid, direction d, WINDOW* win)
 {
+    bool changed = false;
     switch (d)
     {
         case d_left:
@@ -61,23 +74,32 @@ void move(Grid& grid, direction d, WINDOW* win)
                     {
                         if(grid[y][i] == grid[y][x])
                         {
-                            grid[y][i] *= 2;
-                            grid[y][x] = 0;
+                            if (grid[y][i] != 0)
+                            {
+                                grid[y][i] *= 2;
+                                grid[y][x] = 0;
+                                changed = true;
+                            }
                             break;
                         }
 
                         else if(grid[y][i] != 0)
                         {
-                            int tmp = grid[y][x];
-                            grid[y][x] = 0;
-                            grid[y][i + 1] = tmp;
+                            if (i + 1 != x)
+                            {
+                                int tmp = grid[y][x];
+                                grid[y][x] = 0;
+                                grid[y][i + 1] = tmp;
+                                changed = true;
+                            }
                             break;
                         }
 
-                        else if(i == 0 && grid[y][i] == 0)
+                        else if(i == 0 && grid[y][i] == 0 && grid[y][x] != 0)
                         {
                             grid[y][i] = grid[y][x];
                             grid[y][x] = 0;
+                            changed = true;
                             break;
                         }
                     }
@@ -94,21 +116,30 @@ void move(Grid& grid, direction d, WINDOW* win)
                     {
                         if(grid[i][x] == grid[y][x])
                         {
-                            grid[i][x] *= 2;
-                            grid[y][x] = 0;
+                            if (grid[i][x] != 0)
+                            {
+                                grid[i][x] *= 2;
+                                grid[y][x] = 0;
+                                changed = true;
+                            }
                             break;
                         }
                         else if(grid[i][x] != 0)
                         {
-                            int tmp = grid[y][x];
-                            grid[y][x] = 0;
-                            grid[i - 1][x] = tmp;
+                            if (i - 1 != y)
+                            {
+                                int tmp = grid[y][x];
+                                grid[y][x] = 0;
+                                grid[i - 1][x] = tmp;
+                                changed = true;
+                            }
                             break;
                         }
                         else if(i == 3 && grid[i][x] == 0)
                         {
                             grid[i][x] = grid[y][x];
                             grid[y][x] = 0;
+                            changed = true;
                             break;
                         }
                     }
@@ -125,21 +156,30 @@ void move(Grid& grid, direction d, WINDOW* win)
                     {
                         if(grid[i][x] == grid[y][x])
                         {
-                            grid[i][x] *= 2;
-                            grid[y][x] = 0;
+                            if (grid[i][x] != 0)
+                            {
+                                grid[i][x] *= 2;
+                                grid[y][x] = 0;
+                                changed = true;
+                            }
                             break;
                         }
                         else if(grid[i][x] != 0)
                         {
-                            int tmp = grid[y][x];
-                            grid[y][x] = 0;
-                            grid[i + 1][x] = tmp;
+                            if (i + 1 != y)
+                            {
+                                int tmp = grid[y][x];
+                                grid[y][x] = 0;
+                                grid[i + 1][x] = tmp;
+                                changed = true;
+                            }
                             break;
                         }
                         else if(i == 0 && grid[i][x] == 0)
                         {
                             grid[i][x] = grid[y][x];
                             grid[y][x] = 0;
+                            changed = true;
                             break;
                         }
                     }
@@ -156,16 +196,24 @@ void move(Grid& grid, direction d, WINDOW* win)
                     {
                         if(grid[y][i] == grid[y][x])
                         {
-                            grid[y][i] *= 2;
-                            grid[y][x] = 0;
+                            if (grid[y][i] != 0)
+                            {
+                                grid[y][i] *= 2;
+                                grid[y][x] = 0;
+                                changed = true;
+                            }
                             break;
                         }
 
                         else if(grid[y][i] != 0)
                         {
-                            int tmp = grid[y][x];
-                            grid[y][x] = 0;
-                            grid[y][i - 1] = tmp;
+                            if (i - 1 != x)
+                            {
+                                int tmp = grid[y][x];
+                                grid[y][x] = 0;
+                                grid[y][i - 1] = tmp;
+                                changed = true;
+                            }
                             break;
                         }
 
@@ -173,6 +221,7 @@ void move(Grid& grid, direction d, WINDOW* win)
                         {
                             grid[y][i] = grid[y][x];
                             grid[y][x] = 0;
+                            changed = true;
                             break;
                         }
                     }
@@ -181,6 +230,7 @@ void move(Grid& grid, direction d, WINDOW* win)
             }
             break;
     }
+    return changed;
 }
 
 int main()
@@ -210,49 +260,44 @@ int main()
 
     // generate random numbers for populating grid
     srand(time(NULL));
-    int randX, randY;
 
     // populate the playing grid with a couple of numbers
     for (int i = 0; i < 2; i++)
     {
-        do
-        {
-            randX = rand() % 4;
-            randY = rand() % 4;
-        } while (playingGrid[randY][randX] != 0);
-
-        playingGrid[randY][randX] = 2;
+        addNumber(playingGrid);
     }
 
     drawGrid(playingGrid, win);
 
+
     // core gameplay loop
     while (1)
     {
+        bool changed = false;
         int ch = wgetch(win);
         switch (ch)
         {
             case KEY_LEFT:
                 wclear(win);
-                move(playingGrid, d_left, win);
+                changed = move(playingGrid, d_left, win);
                 drawGrid(playingGrid, win);
                 break;
 
             case KEY_DOWN:
                 wclear(win);
-                move(playingGrid, d_down, win);
+                changed = move(playingGrid, d_down, win);
                 drawGrid(playingGrid, win);
                 break;
 
             case KEY_UP:
                 wclear(win);
-                move(playingGrid, d_up, win);
+                changed = move(playingGrid, d_up, win);
                 drawGrid(playingGrid, win);
                 break; 
 
             case KEY_RIGHT:
                 wclear(win);
-                move(playingGrid, d_right, win);
+                changed = move(playingGrid, d_right, win);
                 drawGrid(playingGrid, win);
                 break; 
 
@@ -260,6 +305,25 @@ int main()
                 endwin();
                 return 0;
                 break;
+
+            default:
+                continue;
         }
+
+        if (changed)
+        {
+            addNumber(playingGrid);
+        }
+
+
+        /*
+        // check if the grid is full
+        for (int y = 0; y < 4; y++)
+        {
+            // this is where it has to look at everything in the grid 
+            // if it has a value, the counter goes up
+            // if the grid is full, game over
+        }
+        */
     }
 }
