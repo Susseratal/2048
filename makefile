@@ -1,5 +1,8 @@
 SRCS:=$(wildcard *.cpp)
 OBJS:=${SRCS:.cpp=.o}
 
-2048: ${OBJS}
+bin/2048: ${OBJS}
 	g++ -lncurses -o $@ $^
+
+clean:
+	rm bin/2048 *.o
